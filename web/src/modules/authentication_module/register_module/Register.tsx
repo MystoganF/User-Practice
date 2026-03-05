@@ -4,6 +4,8 @@ import logo from "../../../assets/images/cebunest-logo.png";
 
 type Role = "TENANT" | "OWNER";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
 const Register: React.FC = () => {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -12,14 +14,62 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<Role>("TENANT");
   const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
+
+    // Client-side validation
     if (password !== confirmPassword) {
+      setIsError(true);
       setMessage("Passwords do not match.");
       return;
     }
-    setMessage("UI-only register — functionality not implemented yet.");
+
+    if (password.length < 8) {
+      setIsError(true);
+      setMessage("Password must be at least 8 characters.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phoneNumber, email, password, confirmPassword, role }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setIsError(true);
+        setMessage(data?.error?.message || "Registration failed. Please try again.");
+        return;
+      }
+
+      // Store tokens
+      localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      setIsError(false);
+      setMessage("Account created! Redirecting...");
+
+      // Redirect after short delay
+      setTimeout(() => {
+        window.location.href = "/home";
+      }, 1200);
+
+    } catch (err) {
+      setIsError(true);
+      setMessage("Network error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -111,9 +161,7 @@ const Register: React.FC = () => {
 
             {/* Name */}
             <div className="reg-field-group">
-              <label className="reg-field-label" htmlFor="cn-reg-name">
-                Name
-              </label>
+              <label className="reg-field-label" htmlFor="cn-reg-name">Name</label>
               <div className="reg-field-wrap">
                 <span className="reg-field-icon">👤</span>
                 <input
@@ -130,9 +178,7 @@ const Register: React.FC = () => {
 
             {/* Phone Number */}
             <div className="reg-field-group">
-              <label className="reg-field-label" htmlFor="cn-reg-phone">
-                Phone Number
-              </label>
+              <label className="reg-field-label" htmlFor="cn-reg-phone">Phone Number</label>
               <div className="reg-field-wrap">
                 <span className="reg-field-icon">📞</span>
                 <input
@@ -149,9 +195,7 @@ const Register: React.FC = () => {
 
             {/* Email */}
             <div className="reg-field-group">
-              <label className="reg-field-label" htmlFor="cn-reg-email">
-                Email Address
-              </label>
+              <label className="reg-field-label" htmlFor="cn-reg-email">Email Address</label>
               <div className="reg-field-wrap">
                 <span className="reg-field-icon">✉</span>
                 <input
@@ -168,28 +212,25 @@ const Register: React.FC = () => {
 
             {/* Password */}
             <div className="reg-field-group">
-              <label className="reg-field-label" htmlFor="cn-reg-password">
-                Password
-              </label>
+              <label className="reg-field-label" htmlFor="cn-reg-password">Password</label>
               <div className="reg-field-wrap">
                 <span className="reg-field-icon">🔒</span>
                 <input
                   className="reg-field-input"
                   type="password"
                   id="cn-reg-password"
-                  placeholder="Create a strong password"
+                  placeholder="Min. 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={8}
                 />
               </div>
             </div>
 
             {/* Confirm Password */}
             <div className="reg-field-group">
-              <label className="reg-field-label" htmlFor="cn-reg-confirm">
-                Confirm Password
-              </label>
+              <label className="reg-field-label" htmlFor="cn-reg-confirm">Confirm Password</label>
               <div className="reg-field-wrap">
                 <span className="reg-field-icon">🔒</span>
                 <input
@@ -204,13 +245,13 @@ const Register: React.FC = () => {
               </div>
             </div>
 
-            <button className="reg-btn" type="submit">
-              Create Account
+            <button className="reg-btn" type="submit" disabled={loading}>
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
 
             {message && (
-              <div className="reg-message">
-                <span>⚠</span> {message}
+              <div className={`reg-message${isError ? "" : " reg-message--success"}`}>
+                <span>{isError ? "⚠" : "✅"}</span> {message}
               </div>
             )}
           </form>
@@ -223,9 +264,7 @@ const Register: React.FC = () => {
 
           <div className="reg-links">
             <span className="reg-signin-text">Already have an account?</span>
-            <a href="/" className="reg-link reg-link--signin">
-              Sign In →
-            </a>
+            <a href="/" className="reg-link reg-link--signin">Sign In →</a>
           </div>
 
         </div>

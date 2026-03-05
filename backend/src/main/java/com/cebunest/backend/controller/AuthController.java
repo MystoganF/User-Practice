@@ -15,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // tighten this to your frontend URL in production
+@CrossOrigin(origins = "http://localhost:5173") // tighten this to your frontend URL in production
 public class AuthController {
 
     private final AuthService authService;
