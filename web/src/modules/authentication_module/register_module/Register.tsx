@@ -1,278 +1,236 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import "./Register.css";
+import logo from "../../../assets/images/cebunest-logo.png";
+
+type Role = "TENANT" | "OWNER";
 
 const Register: React.FC = () => {
-  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<Role>("TENANT");
+  const [message, setMessage] = useState<string | null>(null);
 
-  // ===============================
-  // Form state
-  // ===============================
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  // ===============================
-  // Auto-redirect if user already logged in
-  // ===============================
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/dashboard"); // redirect to landing/dashboard
-    }
-  }, [navigate]);
-
-  // ===============================
-  // Handle input changes
-  // ===============================
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear field-specific error
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-
-    // Clear general error
-    if (errors.general) {
-      setErrors((prev) => ({ ...prev, general: "" }));
-    }
-  };
-
-  // ===============================
-  // Simple client-side validation
-  // ===============================
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
-    } else if (formData.username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    const phone = formData.phone.replace(/\D/g, "");
-    if (!phone) {
-      newErrors.phone = "Phone number is required";
-    } else if (phone.length < 10 || phone.length > 15) {
-      newErrors.phone = "Please enter a valid phone number";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // ===============================
-  // Handle form submission
-  // ===============================
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-    setErrors({});
-
-    try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-        }),
-      });
-
-      let errorMessage = `Registration failed (status ${response.status})`;
-
-      // Parse backend response
-      try {
-        const contentType = response.headers.get("Content-Type") || "";
-        if (contentType.includes("application/json")) {
-          const data = await response.json();
-          if (data?.message) errorMessage = data.message;
-        } else {
-          const text = await response.text();
-          if (text) errorMessage = text;
-        }
-      } catch (err) {
-        console.error("Error reading response:", err);
-      }
-
-      if (!response.ok) {
-        setErrors({ general: errorMessage });
-        return;
-      }
-
-      // ===============================
-      // On success, navigate to dashboard directly
-      // ===============================
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("Network or server error:", err);
-      setErrors({ general: "Registration failed: network or server error" });
-    } finally {
-      setIsLoading(false);
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match.");
+      return;
     }
+    setMessage("UI-only register — functionality not implemented yet.");
   };
 
-  // ===============================
-  // Render
-  // ===============================
   return (
-    <div className="register-page">
-      {/* Logo */}
-      <div className="company-logo">
-        <div className="logo-circle">
-          <span className="logo-text">CL</span>
-        </div>
-        <h1 className="company-name">Kean</h1>
-      </div>
+    <div className="reg-page">
 
-      {/* Left Brand Section */}
-      <div className="register-brand-section">
-        <div className="brand-content">
-          <div className="welcome-text">
-            <h2>Join Us...</h2>
-            <p>Create your account and start your journey with us.</p>
+      {/* ── LEFT PANEL ── */}
+      <div className="reg-left-panel">
+        <div className="reg-deco reg-deco--1" />
+        <div className="reg-deco reg-deco--2" />
+        <div className="reg-deco reg-deco--3" />
+        <div className="reg-accent-line" />
+
+        <div className="reg-brand-logo">
+          <img src={logo} alt="CebuNest Logo" className="reg-logo-img" />
+        </div>
+
+        <div className="reg-brand-info">
+          <div className="reg-brand-eyebrow">
+            <div className="reg-eyebrow-line" />
+            <span className="reg-eyebrow-text">Property Management</span>
+          </div>
+          <h2 className="reg-brand-heading">Find Your Perfect Home in Cebu</h2>
+          <p className="reg-brand-body">
+            Join thousands of tenants and property owners already using CebuNest.
+            Create your account and get started in minutes.
+          </p>
+        </div>
+
+        <div className="reg-features">
+          <div className="reg-feature-item">
+            <div className="reg-feature-icon">🏠</div>
+            <div className="reg-feature-text">
+              <span className="reg-feature-title">Browse Listings</span>
+              <span className="reg-feature-desc">Filter by location and price</span>
+            </div>
+          </div>
+          <div className="reg-feature-item">
+            <div className="reg-feature-icon">📋</div>
+            <div className="reg-feature-text">
+              <span className="reg-feature-title">Submit Requests</span>
+              <span className="reg-feature-desc">Easy rental applications</span>
+            </div>
+          </div>
+          <div className="reg-feature-item">
+            <div className="reg-feature-icon">💳</div>
+            <div className="reg-feature-text">
+              <span className="reg-feature-title">Secure Payments</span>
+              <span className="reg-feature-desc">Powered by PayMongo</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Right Form Section */}
-      <div className="register-form-section">
-        <div className="form-container">
-          <div className="form-header">
-            <h1>Register</h1>
-            <p className="form-subtitle">Create an account to access exclusive features.</p>
+      {/* ── RIGHT PANEL ── */}
+      <div className="reg-right-panel">
+        <div className="reg-form-card">
+
+          <div className="reg-form-header">
+            <div className="reg-form-eyebrow">
+              <div className="reg-header-dot" />
+              <span className="reg-header-eyebrow-text">New Account</span>
+            </div>
+            <h2 className="reg-form-heading">Create Account</h2>
+            <p className="reg-form-subheading">Fill in your details to get started.</p>
           </div>
 
-          <form className="register-form" onSubmit={handleSubmit}>
-            {/* Username */}
-            <div className="form-group">
-              <label htmlFor="username">USERNAME</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                disabled={isLoading}
-                className={errors.username ? "error" : ""}
-              />
-              {errors.username && <span className="error-message">{errors.username}</span>}
+          <form className="reg-form-fields" onSubmit={handleRegister}>
+
+            {/* Role Selector */}
+            <div className="reg-role-group">
+              <span className="reg-role-label">I am a</span>
+              <div className="reg-role-toggle">
+                <button
+                  type="button"
+                  className={`reg-role-btn${role === "TENANT" ? " reg-role-btn--active" : ""}`}
+                  onClick={() => setRole("TENANT")}
+                >
+                  🏡 Tenant
+                </button>
+                <button
+                  type="button"
+                  className={`reg-role-btn${role === "OWNER" ? " reg-role-btn--active" : ""}`}
+                  onClick={() => setRole("OWNER")}
+                >
+                  🔑 Owner
+                </button>
+              </div>
+            </div>
+
+            {/* Name */}
+            <div className="reg-field-group">
+              <label className="reg-field-label" htmlFor="cn-reg-name">
+                Name
+              </label>
+              <div className="reg-field-wrap">
+                <span className="reg-field-icon">👤</span>
+                <input
+                  className="reg-field-input"
+                  type="text"
+                  id="cn-reg-name"
+                  placeholder="Juan dela Cruz"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Phone Number */}
+            <div className="reg-field-group">
+              <label className="reg-field-label" htmlFor="cn-reg-phone">
+                Phone Number
+              </label>
+              <div className="reg-field-wrap">
+                <span className="reg-field-icon">📞</span>
+                <input
+                  className="reg-field-input"
+                  type="tel"
+                  id="cn-reg-phone"
+                  placeholder="+63 912 345 6789"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             {/* Email */}
-            <div className="form-group">
-              <label htmlFor="email">EMAIL</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={isLoading}
-                className={errors.email ? "error" : ""}
-              />
-              {errors.email && <span className="error-message">{errors.email}</span>}
-            </div>
-
-            {/* Phone */}
-            <div className="form-group">
-              <label htmlFor="phone">PHONE NUMBER</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                disabled={isLoading}
-                className={errors.phone ? "error" : ""}
-              />
-              {errors.phone && <span className="error-message">{errors.phone}</span>}
+            <div className="reg-field-group">
+              <label className="reg-field-label" htmlFor="cn-reg-email">
+                Email Address
+              </label>
+              <div className="reg-field-wrap">
+                <span className="reg-field-icon">✉</span>
+                <input
+                  className="reg-field-input"
+                  type="email"
+                  id="cn-reg-email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             {/* Password */}
-            <div className="form-group">
-              <label htmlFor="password">PASSWORD</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={isLoading}
-                className={errors.password ? "error" : ""}
-              />
-              {errors.password && <span className="error-message">{errors.password}</span>}
+            <div className="reg-field-group">
+              <label className="reg-field-label" htmlFor="cn-reg-password">
+                Password
+              </label>
+              <div className="reg-field-wrap">
+                <span className="reg-field-icon">🔒</span>
+                <input
+                  className="reg-field-input"
+                  type="password"
+                  id="cn-reg-password"
+                  placeholder="Create a strong password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
             {/* Confirm Password */}
-            <div className="form-group">
-              <label htmlFor="confirmPassword">CONFIRM PASSWORD</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                disabled={isLoading}
-                className={errors.confirmPassword ? "error" : ""}
-              />
-              {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+            <div className="reg-field-group">
+              <label className="reg-field-label" htmlFor="cn-reg-confirm">
+                Confirm Password
+              </label>
+              <div className="reg-field-wrap">
+                <span className="reg-field-icon">🔒</span>
+                <input
+                  className="reg-field-input"
+                  type="password"
+                  id="cn-reg-confirm"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            {/* General error message */}
-            {errors.general && <div className="general-error">{errors.general}</div>}
-
-            {/* Submit button */}
-            <button type="submit" className="register-button" disabled={isLoading}>
-              {isLoading ? "CREATING ACCOUNT..." : "REGISTER"}
+            <button className="reg-btn" type="submit">
+              Create Account
             </button>
 
-            {/* Footer */}
-            <div className="form-footer">
-              <Link to="/login" className="login-link">
-                Already have an account? Login
-              </Link>
-            </div>
+            {message && (
+              <div className="reg-message">
+                <span>⚠</span> {message}
+              </div>
+            )}
           </form>
 
-          <div className="feature-text">
-            <p>Start your journey with us today</p>
+          <div className="reg-divider">
+            <div className="reg-divider-line" />
+            <span className="reg-divider-text">or</span>
+            <div className="reg-divider-line" />
           </div>
+
+          <div className="reg-links">
+            <span className="reg-signin-text">Already have an account?</span>
+            <a href="/" className="reg-link reg-link--signin">
+              Sign In →
+            </a>
+          </div>
+
         </div>
       </div>
+
     </div>
   );
 };
