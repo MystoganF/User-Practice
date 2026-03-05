@@ -1,95 +1,133 @@
 import React, { useState } from "react";
 import "./Login.css";
+import logo from "../../../assets/images/cebunest-logo.png";
 
 const Login: React.FC = () => {
-
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // No functionality yet (UI only)
+    setMessage("UI-only login — functionality not implemented yet.");
   };
 
   return (
     <div className="login-page">
 
-      {/* Logo */}
-      <div className="company-logo">
-        <div className="logo-circle">
-          <span className="logo-text">CL</span>
-        </div>
-        <h1 className="company-name">Kean</h1>
-      </div>
+      {/* ── LEFT PANEL ── */}
+      <div className="login-left-panel">
+        <div className="login-deco login-deco--1" />
+        <div className="login-deco login-deco--2" />
+        <div className="login-deco login-deco--3" />
+        <div className="login-accent-line" />
 
-      {/* Left Branding Section */}
-      <div className="login-brand-section">
-        <div className="brand-content">
-          <div className="welcome-text">
-            <h2>Welcome Back!</h2>
-            <p>Log in to access your account and enjoy exclusive features.</p>
+        <div className="login-brand-logo">
+          <img src={logo} alt="CebuNest Logo" className="login-logo-img" />
+        </div>
+
+        <div className="login-brand-info">
+          <div className="login-brand-eyebrow">
+            <div className="login-eyebrow-line" />
+            <span className="login-eyebrow-text">Property Management</span>
+          </div>
+          <h2 className="login-brand-heading">Your Home in Cebu Awaits</h2>
+          <p className="login-brand-body">
+            Streamlined rental management for tenants and property owners.
+            Browse listings, submit rental requests, and manage bookings — all in one place.
+          </p>
+        </div>
+
+        <div className="login-stats">
+          <div className="login-stat-item">
+            <span className="login-stat-number">240+</span>
+            <span className="login-stat-label">Active Listings</span>
+          </div>
+          <div className="login-stat-item">
+            <span className="login-stat-number">1.2k</span>
+            <span className="login-stat-label">Happy Tenants</span>
+          </div>
+          <div className="login-stat-item">
+            <span className="login-stat-number">98%</span>
+            <span className="login-stat-label">Satisfaction</span>
           </div>
         </div>
       </div>
 
-      {/* Right Login Form */}
-      <div className="login-form-section">
-        <div className="form-container">
+      {/* ── RIGHT PANEL ── */}
+      <div className="login-right-panel">
+        <div className="login-form-card">
 
-          <div className="form-header">
-            <h1>Login</h1>
-            <p className="form-subtitle">
-              Enter your credentials to continue.
-            </p>
+          <div className="login-form-header">
+            <div className="login-form-eyebrow">
+              <div className="login-header-dot" />
+              <span className="login-header-eyebrow-text">Secure Access</span>
+            </div>
+            <h2 className="login-form-heading">Welcome Back</h2>
+            <p className="login-form-subheading">Sign in to manage your properties and rentals.</p>
           </div>
 
-          <form className="login-form" onSubmit={handleLogin}>
-
-            {/* Username */}
-            <div className="form-group">
-              <label>Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
-              />
+          <form className="login-form-fields" onSubmit={handleLogin}>
+            <div className="login-field-group">
+              <label className="login-field-label" htmlFor="cn-login-email">
+                Email Address
+              </label>
+              <div className="login-field-wrap">
+                <span className="login-field-icon">✉</span>
+                <input
+                  className="login-field-input"
+                  type="email"
+                  id="cn-login-email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            {/* Password */}
-            <div className="form-group">
-              <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-              />
+            <div className="login-field-group">
+              <label className="login-field-label" htmlFor="cn-login-password">
+                Password
+              </label>
+              <div className="login-field-wrap">
+                <span className="login-field-icon">🔒</span>
+                <input
+                  className="login-field-input"
+                  type="password"
+                  id="cn-login-password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="login-button"
-            >
-              LOGIN
+            <button className="login-btn" type="submit">
+              Sign In
             </button>
 
-            {/* Footer Links (UI only) */}
-            <div className="form-footer">
-              <span className="signup-link">
-                New User? Sign Up
-              </span>
-
-              <span className="forgot-link">
-                Forgot your password?
-              </span>
-            </div>
-
+            {message && (
+              <div className="login-message">
+                <span>⚠</span> {message}
+              </div>
+            )}
           </form>
 
-          <div className="feature-text">
-            <p>Securely access your account anytime, anywhere.</p>
+          <div className="login-divider">
+            <div className="login-divider-line" />
+            <span className="login-divider-text">or</span>
+            <div className="login-divider-line" />
+          </div>
+
+          <div className="login-links">
+            <a href="/forgot-password" className="login-link">
+              Forgot Password?
+            </a>
+            <a href="/register" className="login-link login-link--signup">
+              Create Account →
+            </a>
           </div>
 
         </div>
